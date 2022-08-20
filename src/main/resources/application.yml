@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: coffee-vpn
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vpnbot
+    username: root
+    password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties.hibernate.format_sql: true
+    properties.hibernate.show_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    #open-in-view: false
+
+logging:
+  level:
+    root: info
+
+server:
+  port: 8090
+  servlet:
+    contextPath: /core
+
+config:
+  cli:
+    key-gen-command: wg genkey | tee /Users/ilyaguzenko/Desktop/bot-test-folder/{0}/{0}_privatekey | wg pubkey | tee /Users/ilyaguzenko/Desktop/bot-test-folder/{0}/{0}_publickey
+    work-dir: /Users/ilyaguzenko/Desktop/bot-test-folder
+  file:
+    dns: 8.8.8.8
+    public-key: iSAk7NSZQTub+ZI4z53cK2dNhXZyEhaiESWLC6WYnVU=
+    endpoint: 103.136.41.156:51830
+    allowed-ips: 0.0.0.0/0
+    persistent-keepalive: 20
+  bot:
+    name: AffordableVPNbot
+    token: 5363074508:AAElrQIJQVntsfC9rm0SINp_GG57DVKWOiE
