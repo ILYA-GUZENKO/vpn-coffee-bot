@@ -20,7 +20,7 @@ logging:
 server:
   port: 8090
   servlet:
-    contextPath: /core
+    contextPath: /coffee
 
 config:
   cli:
