@@ -31,9 +31,6 @@ public class ConfigFileService {
      * AllowedIPs = 10.0.0.12/32
      * # END_PEER olga
      */
-    /**
-     * 10.0.0.0–10.255.255.255
-     */
     public boolean addPeer(String userName, String publicKey, String ip) {
         var str = new StringBuilder()
                 .append(NEW_LINE)

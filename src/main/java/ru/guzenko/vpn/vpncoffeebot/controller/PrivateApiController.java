@@ -1,4 +1,4 @@
-package ru.guzenko.vpn.vpncoffeebot;
+package ru.guzenko.vpn.vpncoffeebot.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

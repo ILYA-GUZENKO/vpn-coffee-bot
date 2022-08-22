@@ -118,21 +118,26 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(customer.getChatId().toString());
         message.enableMarkdown(true);
-        if (nextPaymentDate == null) {
-            Customer updatedCustomer = customerService.regSubscription(customer);
-            if (updatedCustomer.getConfigFile() != null) {
-                message.setText(BotMessageEnum.SUCCESS_SUBSCRIBED.getMessage());
+        try {
+            if (nextPaymentDate == null) {
+                Customer updatedCustomer = customerService.regSubscription(customer);
+                if (updatedCustomer.getConfigFile() != null) {
+                    message.setText(BotMessageEnum.SUCCESS_SUBSCRIBED.getMessage());
+                } else {
+                    message.setText("Не удалось создать подписку, попробуйте позже.");
+                }
             } else {
-                message.setText("Не удалось создать подписку, попробуйте позже.");
+                Customer updatedCustomer = customerService.renewSubscription(customer);
+                if (updatedCustomer.getNextPaymentDate().isAfter(nextPaymentDate)) {
+                    message.setText(BotMessageEnum.SUCCESS_RENEW_SUBSCRIBED.getMessage());
+                } else {
+                    message.setText("Не удалось создать подписку, попробуйте позже.");
+                }
             }
-        } else {
-            Customer updatedCustomer = customerService.renewSubscription(customer);
-            if (updatedCustomer.getNextPaymentDate().isAfter(nextPaymentDate)) {
-                message.setText(BotMessageEnum.SUCCESS_RENEW_SUBSCRIBED.getMessage());
-            } else {
-                message.setText("Не удалось создать подписку, попробуйте позже.");
-            }
+        } catch (Exception e) {
+            message.setText(BotMessageEnum.EXCEPTION_BAD_TRY_PAYMENT.getMessage());
         }
+
         return message;
     }
 

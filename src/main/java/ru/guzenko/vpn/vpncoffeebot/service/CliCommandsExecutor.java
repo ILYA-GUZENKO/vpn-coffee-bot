@@ -40,7 +40,20 @@ public class CliCommandsExecutor {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("sh", "-c", "mkdir " + userName);
         builder.directory(new File(workDir));
-        return executeVoid(builder);
+        try {
+            Process process = builder.start();
+            int exitCode = process.waitFor();
+            if (new String(process.getErrorStream().readAllBytes()).contains("File exists"))
+                return true;
+            if (exitCode != 0) {
+                log.error(MessageFormat.format("ERROR! {0} exitCode is {1}", builder.command().toString(), exitCode));
+                return false;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public void restartWg() {
@@ -99,6 +112,7 @@ public class CliCommandsExecutor {
         try {
             Process process = builder.start();
             int exitCode = process.waitFor();
+            log.error(new String(process.getErrorStream().readAllBytes()));
             if (exitCode != 0) {
                 log.error(MessageFormat.format("ERROR! {0} exitCode is {1}", builder.command().toString(), exitCode));
                 return false;

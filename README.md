@@ -21,3 +21,5 @@
 
 - оплата через бота- <span style="color:yellow">**todo**</span>
 
+- вкл/выкл wg, статистика <span style="color:yellow">**todo**</span>
+
