@@ -4,7 +4,7 @@ package ru.guzenko.vpn.vpncoffeebot.constant;
  * Названия кнопок основной клавиатуры
  */
 public enum ButtonNameEnum {
-    BUY_SUB_BUTTON("Купить подписку"),
+    BUY_SUB_BUTTON("Купить/продлить подписку"),
     HOW_IT_WORKS("Как это работает?"),
     GET_MY_SUBSCRIPTION("Посмотреть свою подписку"),
     HELP_BUTTON("Помощь");

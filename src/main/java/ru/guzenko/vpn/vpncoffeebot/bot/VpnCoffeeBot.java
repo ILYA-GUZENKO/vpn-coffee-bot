@@ -6,12 +6,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerPreCheckoutQuery;
+import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
+import org.telegram.telegrambots.meta.api.objects.payments.PreCheckoutQuery;
+import org.telegram.telegrambots.meta.api.objects.payments.SuccessfulPayment;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.guzenko.vpn.vpncoffeebot.bot.keyboards.InlineKeyboardMaker;
 import ru.guzenko.vpn.vpncoffeebot.bot.keyboards.ReplyKeyboardMaker;
@@ -24,6 +29,7 @@ import ru.guzenko.vpn.vpncoffeebot.service.CustomerService;
 import java.io.ByteArrayInputStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -44,12 +50,21 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasCallbackQuery()) {
+        if (update.hasPreCheckoutQuery()) {
+            PreCheckoutQuery preCheckoutQuery = update.getPreCheckoutQuery();
+            log.info(preCheckoutQuery.toString());
+            sendApiMethodAsync(AnswerPreCheckoutQuery.builder()
+                    .preCheckoutQueryId(preCheckoutQuery.getId())
+                    .ok(true)
+                    .build());
+        } else if (update.hasCallbackQuery()) {
             processCallbackQuery(update.getCallbackQuery());
+            log.info(update.getCallbackQuery().toString());
         } else {
             Message message = update.getMessage();
             if (message != null) {
-                answerMessage(update.getMessage());
+                log.info(message.toString());
+                answerMessage(message);
             }
         }
     }
@@ -59,12 +74,33 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
         String inputText = message.getText();
         String chatId = message.getChatId().toString();
 
-        if (inputText == null) {
+        if (message.hasSuccessfulPayment()) {
+            SuccessfulPayment successfulPayment = message.getSuccessfulPayment();
+            log.info(successfulPayment.toString());
+            //todo successfulPayment.getProviderPaymentChargeId(); сохранять в базу, кажется надо вообще весь successfulPayment сохранять + чатИд в новую таблицу
+            sendApiMethodAsync(getBuySubscriptionMessage(customer));
+        } else if (inputText == null) {
             throw new IllegalArgumentException();
         } else if (inputText.equals("/start")) {
             sendApiMethodAsync(getStartMessage(chatId));
         } else if (inputText.equals(ButtonNameEnum.BUY_SUB_BUTTON.getButtonName())) {
-            sendApiMethodAsync(getBuySubscriptionMessage(customer));
+            try {
+                execute(SendInvoice.builder()
+                        .chatId(chatId)
+                        .title("Оплата подписки 30 дней")
+                        .description("Это строка описания")
+                        .payload("my payload for chat " + chatId)
+                        .providerToken("381764678:TEST:41545")
+                        .currency("RUB")
+                        .startParameter("test")
+                        .prices(List.of(LabeledPrice.builder().label("Руб").amount(20000).build()))
+                        .build()
+                );
+            } catch (TelegramApiException e) {
+                log.error(e.getMessage());
+                e.printStackTrace();
+                sendApiMethodAsync(new SendMessage(chatId, BotMessageEnum.EXCEPTION_BAD_TRY_SEND_INVOICE.getMessage()));
+            }
         } else if (inputText.equals(ButtonNameEnum.HOW_IT_WORKS.getButtonName())) {
             sendApiMethodAsync(getHowItWorksMessage(chatId));
         } else if (inputText.equals(ButtonNameEnum.GET_MY_SUBSCRIPTION.getButtonName())) {
@@ -135,16 +171,16 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
                 }
             }
         } catch (Exception e) {
-            message.setText(BotMessageEnum.EXCEPTION_BAD_TRY_PAYMENT.getMessage());
+            message.setText(BotMessageEnum.EXCEPTION_BAD_TRY_GEN_IP.getMessage());
         }
 
         return message;
     }
 
     private SendMessage getHowItWorksMessage(String chatId) {
-        //TODO инлайн клавиаутра с гайдом под каждую ОС
-        SendMessage sendMessage = new SendMessage(chatId, "пока не муею");
+        SendMessage sendMessage = new SendMessage(chatId, BotMessageEnum.HOW_IT_WORKS.getMessage());
         sendMessage.enableMarkdown(true);
+        //TODO инлайн клавиаутра с гайдом под каждую ОС ?? + пдф/картинками гайды?
         sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineButtonsForHowItWorks());
         return sendMessage;
     }
