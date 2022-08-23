@@ -1,12 +1,33 @@
 version: "3.8"
 services:
 
-  postgres:
+  postgres: #https://habr.com/ru/post/578744/
     image: postgres:14
     container_name: postgres-container
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
       POSTGRES_DB: vpnbot
+    volumes:
+      #- pgdata:/var/lib/postgresql/data
+      - /Users/ilyaguzenko/Desktop/bot-test-folder:/var/lib/postgresql
     ports:
       - "5432:5432"
+    #healthcheck:
+     # test: [ "CMD-SHELL", "pg_isready -U habrpguser -d habrdb" ]
+      #interval: 10s
+      #timeout: 5s
+      #retries: 5
+      #start_period: 10s
+    #restart: unless-stopped
+    #deploy:
+     # resources:
+      #  limits:
+       #   cpus: '1'
+        #  memory: 4G
+#volumes:
+  #pgdata:
+    #external: true
+  #volumes:
+  # db:
+  #  driver: local
