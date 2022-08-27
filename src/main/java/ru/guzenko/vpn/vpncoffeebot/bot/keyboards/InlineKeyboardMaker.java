@@ -17,7 +17,7 @@ public class InlineKeyboardMaker {
 
     public InlineKeyboardMarkup getInlineButtonsForSubscriptionInfo() {
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(getButton("Когда закончиться?", InlineButtonNameEnum.NEXT_PAYMENT_DATE.getButtonName()));
+        rowList.add(getButton("Когда закончится?", InlineButtonNameEnum.NEXT_PAYMENT_DATE.getButtonName()));
         rowList.add(getButton("Получить файл для доступа", InlineButtonNameEnum.GET_CONFIG_FILE.getButtonName()));
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(rowList);

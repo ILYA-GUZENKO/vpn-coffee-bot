@@ -10,7 +10,9 @@ services:
       POSTGRES_DB: vpnbot
     volumes:
       #- pgdata:/var/lib/postgresql/data
-      - /Users/ilyaguzenko/Desktop/bot-test-folder:/var/lib/postgresql
+      - db:/var/lib/postgresql
+      #- /Users/ilyaguzenko/Desktop/bot-test-folder:/var/lib/postgresql
+      #- /etc/wireguard/volume:/var/lib/postgresql
     ports:
       - "5432:5432"
     #healthcheck:
@@ -25,9 +27,10 @@ services:
       #  limits:
        #   cpus: '1'
         #  memory: 4G
-#volumes:
-  #pgdata:
+volumes:
+  db:
     #external: true
+    driver: local
   #volumes:
   # db:
   #  driver: local

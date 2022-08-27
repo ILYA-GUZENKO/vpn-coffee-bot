@@ -70,23 +70,24 @@ public class CliCommandsExecutor {
         executeVoid(builder);
     }
 
-    public void statusWg() {
+    public List<String> statusWg() {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("sh", "-c", "systemctl status wg-quick@wg0.service");
         builder.directory(new File(workDir));
         List<String> result = executeAndGetLines(builder);
         //todo парсить
         result.forEach(System.out::println);
+        return result;
     }
 
-    public Object getWgStat() {
+    public List<String> wgShow() {
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("sh", "-c", "systemctl status wg-quick@wg0.service");
+        builder.command("sh", "-c", "wg show");
         builder.directory(new File(workDir));
         List<String> result = executeAndGetLines(builder);
         //todo парсить к листу объектов? надо еще будет в базу идти по приват ключу(индекс?)
         result.forEach(System.out::println);
-        return null;
+        return result;
     }
 
     public Pair<String, String> genKeysAndGet(String userName) {

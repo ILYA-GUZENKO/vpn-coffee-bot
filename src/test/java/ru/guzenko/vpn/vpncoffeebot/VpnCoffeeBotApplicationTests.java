@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class VpnCoffeeBotApplicationTests {
 
-	@Test
+	//@Test
 	void contextLoads() {
 	}
 

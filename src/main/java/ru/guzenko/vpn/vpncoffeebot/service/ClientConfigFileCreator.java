@@ -55,7 +55,7 @@ public class ClientConfigFileCreator {
                 .append("DNS = ").append(dns)
                 .append(NEW_LINE)
                 .append(NEW_LINE)
-                .append("Peer]")
+                .append("[Peer]")
                 .append(NEW_LINE)
                 .append("PublicKey = ").append(publicKey)
                 .append(NEW_LINE)
@@ -66,7 +66,8 @@ public class ClientConfigFileCreator {
                 .append("PersistentKeepalive = ").append(persistentKeepalive)
                 .append(NEW_LINE)
                 .toString();
-        var dir = workDir + "/" + userName + "/" + userName + "_wg.conf";
+
+        var dir = workDir + "/" + userName + "/" + "client_wg.conf";
         Path path = Paths.get(dir);
         try {
             Files.deleteIfExists(path);

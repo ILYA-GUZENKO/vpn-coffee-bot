@@ -9,17 +9,20 @@
 - регистрация в базе при первом обращении (юернейм и чатИд  брать из тг)- <span style="color:green">**done**</span>
 - выплюнуть в бота клиентский файл - <span style="color:green">**done**</span>
 - после оплаты 1Й раз генерим все , записываем в базу - <span style="color:green">**done**</span>
-
+- оплата через бота- <span style="color:green">**done**</span>
+- админский контроллер crud- <span style="color:green">**done**</span>
+- флоу бота и клавиутры - <span style="color:green">**done**</span>
 ------------------------------------------------------------------------------------------------------------------------
 - флоу бота и клавиутры - <span style="color:orange">**in progress**</span>
 
 - шедулер чекает дуеДейт и удаляет пир из конфиг файла - <span style="color:orange">**in progress**</span>
 
 - реферальная программа - <span style="color:yellow">**todo**</span>
+- Статистика по переходам в меню бота - <span style="color:yellow">**todo**</span>
 
-- админский контроллер crud- <span style="color:orange">**in progress**</span>
 
-- оплата через бота- <span style="color:yellow">**todo**</span>
+- сваггер <span style="color:yellow">**todo**</span>
 
-- вкл/выкл wg, статистика <span style="color:yellow">**todo**</span>
+
+- статистика красиво <span style="color:yellow">**todo**</span>
 

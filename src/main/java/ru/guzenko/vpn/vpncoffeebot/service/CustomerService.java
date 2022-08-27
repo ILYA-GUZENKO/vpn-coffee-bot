@@ -27,15 +27,20 @@ public class CustomerService {
         Customer customer;
         Optional<Customer> optionalCustomer = customerRepository.getCustomerByChatId(message.getChat().getId());
         if (optionalCustomer.isEmpty()) {
+            var userName = message.getFrom().getUserName() == null ? "user" + message.getChat().getId() : message.getFrom().getUserName();
             customer = customerRepository.save(Customer.builder()
                     .chatId(message.getChat().getId())
-                    .userName(message.getFrom().getUserName())
+                    .userName(userName)
                     .regDate(OffsetDateTime.now())
                     .build());
         } else {
             customer = optionalCustomer.get();
         }
         return customer;
+    }
+
+    public Customer getCustomerByUserName(String userName) {
+        return customerRepository.findByUserName(userName).orElseThrow(() -> new RuntimeException("Нет такого пользователя"));
     }
 
     public List<Customer> getAll() {
@@ -65,6 +70,8 @@ public class CustomerService {
                 customer.setInternalIpAddress(internalIp);
                 customer.setConfigFile(fileBytes);
                 customer.setNextPaymentDate(OffsetDateTime.now().plusDays(30));
+                cliCommandsExecutor.restartWg();
+                log.info(cliCommandsExecutor.statusWg().toString());
                 return customerRepository.save(customer);
             }
         }
@@ -78,6 +85,8 @@ public class CustomerService {
         } else {
             customer.setNextPaymentDate(OffsetDateTime.now().plusDays(30));
         }
+        cliCommandsExecutor.restartWg();
+        log.info(cliCommandsExecutor.statusWg().toString());
         return customerRepository.save(customer);
     }
 }

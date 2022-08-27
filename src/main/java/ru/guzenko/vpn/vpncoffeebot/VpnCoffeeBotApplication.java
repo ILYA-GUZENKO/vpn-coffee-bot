@@ -17,8 +17,5 @@ public class VpnCoffeeBotApplication {
     @SneakyThrows
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(VpnCoffeeBotApplication.class, args);
-
-        CliCommandsExecutor cliCommandsExecutor = context.getBean(CliCommandsExecutor.class);
-        cliCommandsExecutor.makeDir("GuzenkoI");
     }
 }

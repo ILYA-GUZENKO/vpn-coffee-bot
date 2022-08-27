@@ -88,8 +88,8 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
                 execute(SendInvoice.builder()
                         .chatId(chatId)
                         .title("Оплата подписки 30 дней")
-                        .description("Это строка описания")
-                        .payload("my payload for chat " + chatId)
+                        .description("Доступ к серверу на 30 дней")
+                        .payload("Order for user" + chatId)
                         .providerToken("381764678:TEST:41545")
                         .currency("RUB")
                         .startParameter("test")
@@ -136,7 +136,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
             sendApiMethodAsync(new SendMessage(chatId, customer.getNextPaymentDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))));
         } else if (data.equals(InlineButtonNameEnum.GET_CONFIG_FILE.getButtonName())) {
             try {
-                execute(new SendDocument(chatId, new InputFile(new ByteArrayInputStream(customer.getConfigFile()), customer.getUserName() + "_wg.conf")));
+                execute(new SendDocument(chatId, new InputFile(new ByteArrayInputStream(customer.getConfigFile()), "client_wg.conf")));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -186,7 +186,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
     }
 
     private SendMessage getMySubscriptionInfoMessage(String chatId) {
-        SendMessage sendMessage = new SendMessage(chatId, "Выбирите действие");
+        SendMessage sendMessage = new SendMessage(chatId, "Выберите действие");
         sendMessage.enableMarkdown(true);
         sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineButtonsForSubscriptionInfo());
         return sendMessage;
