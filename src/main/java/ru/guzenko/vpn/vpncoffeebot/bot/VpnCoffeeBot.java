@@ -180,8 +180,8 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
     private SendMessage getHowItWorksMessage(String chatId) {
         SendMessage sendMessage = new SendMessage(chatId, BotMessageEnum.HOW_IT_WORKS.getMessage());
         sendMessage.enableMarkdown(true);
-        //TODO инлайн клавиаутра с гайдом под каждую ОС ?? + пдф/картинками гайды?
         sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineButtonsForHowItWorks());
+        //TODO обрабатывать колбек и давать ссылку на скачивание + фото-гайд
         return sendMessage;
     }
 

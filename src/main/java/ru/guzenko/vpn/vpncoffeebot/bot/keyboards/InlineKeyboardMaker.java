@@ -25,13 +25,30 @@ public class InlineKeyboardMaker {
     }
 
     public ReplyKeyboard getInlineButtonsForHowItWorks() {
-        return null;
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(getUrlButton("iOS", "https://apps.apple.com/us/app/wireguard/id1441195209?ls=1"));
+        rowList.add(getUrlButton("Android", "https://play.google.com/store/apps/details?id=com.wireguard.android&hl=ru&gl=US"));
+        rowList.add(getUrlButton("Mac", "https://apps.apple.com/us/app/wireguard/id1451685025?ls=1&mt=12"));
+        rowList.add(getUrlButton("Windows", "https://download.wireguard.com/windows-client/wireguard-installer.exe"));
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        return inlineKeyboardMarkup;
     }
 
     private List<InlineKeyboardButton> getButton(String buttonName, String buttonCallBackData) {
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText(buttonName);
         button.setCallbackData(buttonCallBackData);
+
+        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
+        keyboardButtonsRow.add(button);
+        return keyboardButtonsRow;
+    }
+
+    private List<InlineKeyboardButton> getUrlButton(String buttonName, String url) {
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText(buttonName);
+        button.setUrl(url);
 
         List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
         keyboardButtonsRow.add(button);
