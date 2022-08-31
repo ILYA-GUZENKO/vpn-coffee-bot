@@ -56,6 +56,38 @@ public class CliCommandsExecutor {
         return true;
     }
 
+    public boolean renameUserDirAndFiles(String from, String to) {
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command("sh", "-c", "mv " + from + " " + to);
+        builder.directory(new File(workDir));
+        boolean mvDir = executeVoid(builder);
+        if (mvDir) {
+            ProcessBuilder renamePrivateKey = new ProcessBuilder();
+            renamePrivateKey.command("sh", "-c", "mv " + from + "_privatekey" + " " + to + "_privatekey");
+            renamePrivateKey.directory(new File(workDir + "/" + to));
+            boolean renamePrivateKeyResult = executeVoid(renamePrivateKey);
+
+            ProcessBuilder renamePublicKey = new ProcessBuilder();
+            renamePublicKey.command("sh", "-c", "mv " + from + "_publickey" + " " + to + "_publickey");
+            renamePublicKey.directory(new File(workDir + "/" + to));
+            boolean renamePublicKeyResult = executeVoid(renamePublicKey);
+            if (renamePrivateKeyResult && renamePublicKeyResult) {
+                return true;
+            } else {
+                ProcessBuilder fallbackBuilder = new ProcessBuilder();
+                fallbackBuilder.command("sh", "-c", "mv " + to + " " + from);
+                fallbackBuilder.directory(new File(workDir));
+                boolean fallbackResult = executeVoid(fallbackBuilder);
+                if (!fallbackResult) {
+                    log.error("НЕ УДАЛОСЬ ОБРАТНО ПЕРЕИМЕНОВАТЬ ДИРРЕКТОРИЮ ПОЛЬЗОВАТЕЛЯ " + from + " " + to + " ПОСЛЕ ОШИБКИ!!!");
+                }
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public void restartWg() {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command("sh", "-c", "systemctl restart wg-quick@wg0.service");
@@ -113,7 +145,7 @@ public class CliCommandsExecutor {
         try {
             Process process = builder.start();
             int exitCode = process.waitFor();
-            log.error(new String(process.getErrorStream().readAllBytes()));
+            log.info(new String(process.getErrorStream().readAllBytes()));
             if (exitCode != 0) {
                 log.error(MessageFormat.format("ERROR! {0} exitCode is {1}", builder.command().toString(), exitCode));
                 return false;

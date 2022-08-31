@@ -41,6 +41,8 @@ public class Customer {
 
     private OffsetDateTime nextPaymentDate;
 
+    private String refUsername;
+
     //@Lob
     @Type(type="org.hibernate.type.BinaryType")
     private byte[] configFile;

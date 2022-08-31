@@ -34,6 +34,7 @@ public class ConfigFileService {
     public boolean addPeer(String userName, String publicKey, String ip) {
         var str = new StringBuilder()
                 .append(NEW_LINE)
+                //.append(NEW_LINE)
                 .append("# BEGIN_PEER ").append(userName)
                 .append(NEW_LINE)
                 .append("[Peer] #").append(userName)
@@ -44,6 +45,7 @@ public class ConfigFileService {
                 .append(NEW_LINE)
                 .append("# END_PEER ").append(userName)
                 .append(NEW_LINE)
+                //.append(NEW_LINE)
                 .toString();
         Path path = Paths.get(workDir + "/wg0.conf");
         byte[] strToBytes = str.getBytes();
@@ -56,7 +58,22 @@ public class ConfigFileService {
         return true;
     }
 
-    public void deletePeer(String userName) {
+    public boolean updatePeerName(String from, String to, String publicKey, String ip) {
+        try {
+            boolean deletePeer = deletePeer(from);
+            if (deletePeer) {
+                Path path = Paths.get(workDir + "/wg0.conf");
+                Files.write(path, NEW_LINE.getBytes(), StandardOpenOption.APPEND, StandardOpenOption.SYNC);
+                return addPeer(to, publicKey, ip);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean deletePeer(String userName) {
         var peerStartLine = "# BEGIN_PEER " + userName;
         Path path = Paths.get(workDir + "/wg0.conf");
         try {
@@ -64,7 +81,7 @@ public class ConfigFileService {
             List<String> toDelete = new ArrayList<>();
             AtomicInteger peerCounter = new AtomicInteger();
             strings.forEach(s -> {
-                if (peerStartLine.equals(s.trim()) || peerCounter.get() > 0) {
+                if (peerCounter.get() > 0 || peerStartLine.equals(s.trim())) {
                     if (peerCounter.get() < 5) {
                         toDelete.add(s);
                         peerCounter.getAndIncrement();
@@ -77,7 +94,10 @@ public class ConfigFileService {
             Files.delete(path);
             Files.write(path, join.getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW, StandardOpenOption.SYNC);
         } catch (IOException e) {
+            log.error("Не удалось удалить пира " + userName + " !!!");
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 }

@@ -35,6 +35,9 @@ public class CustomerService {
                     .build());
         } else {
             customer = optionalCustomer.get();
+            if (!message.getFrom().getUserName().equals(customer.getUserName())) {
+                return renameCustomer(customer, message.getFrom().getUserName());
+            }
         }
         return customer;
     }
@@ -88,5 +91,20 @@ public class CustomerService {
         cliCommandsExecutor.restartWg();
         log.info(cliCommandsExecutor.statusWg().toString());
         return customerRepository.save(customer);
+    }
+
+    private Customer renameCustomer(Customer customer, String newUserName) {
+        boolean result = cliCommandsExecutor.renameUserDirAndFiles(customer.getUserName(), newUserName);
+        if (result) {
+            boolean updatePeerName = configFileService.updatePeerName(customer.getUserName(), newUserName, customer.getPublicKey(), customer.getInternalIpAddress());
+            if (updatePeerName) {
+                customer.setUserName(newUserName);
+                return customerRepository.save(customer);
+            } else {
+                throw new RuntimeException("У пользователя сменился userName, боту не удалось его переименовать!");
+            }
+        } else {
+            throw new RuntimeException("У пользователя сменился userName, боту не удалось его переименовать!");
+        }
     }
 }

@@ -31,7 +31,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 @Slf4j
 public class VpnCoffeeBot extends TelegramLongPollingBot {

@@ -19,6 +19,21 @@ public class CustomerScheduler {
     @Async
     @Scheduled(fixedDelay = 10000)
     public void deleteExpiredSubscriptions() {
+        log.info("deleteExpiredSubscriptions job started");
+        log.info("deleteExpiredSubscriptions job finished");
+    }
 
+    @Async
+    @Scheduled(fixedDelay = 10000)
+    public void notifyOneDayLeft() {
+        log.info("notifyOneDayLeft job started");
+        log.info("notifyOneDayLeft job finished");
+    }
+
+    @Async
+    @Scheduled(fixedDelay = 10000)
+    public void proposeSubscription() {
+        log.info("proposeSubscription job started");
+        log.info("proposeSubscription job finished");
     }
 }
