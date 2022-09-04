@@ -24,9 +24,13 @@ public class ReplyKeyboardMaker {
         row2.add(new KeyboardButton(ButtonNameEnum.GET_MY_SUBSCRIPTION.getButtonName()));
         row2.add(new KeyboardButton(ButtonNameEnum.HELP_BUTTON.getButtonName()));
 
+        KeyboardRow row3 = new KeyboardRow();
+        row3.add(new KeyboardButton(ButtonNameEnum.REF_PROGRAM.getButtonName()));
+
         List<KeyboardRow> keyboard = new ArrayList<>();
         keyboard.add(row1);
         keyboard.add(row2);
+        keyboard.add(row3);
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setKeyboard(keyboard);

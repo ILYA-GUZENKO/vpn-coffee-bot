@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.guzenko.vpn.vpncoffeebot.model.Customer;
 import ru.guzenko.vpn.vpncoffeebot.repository.CustomerRepository;
@@ -22,6 +23,8 @@ public class CustomerService {
     private final ClientConfigFileCreator clientConfigFileCreator;
     private final CliCommandsExecutor cliCommandsExecutor;
     private final ClientInternalAddressGenerator clientInternalAddressGenerator;
+
+    public static final String REF_SUCCESS_MSG = "Пробный период на 14 дней успешно активирован!";
 
     public Customer getCustomer(Message message) {
         Customer customer;
@@ -42,8 +45,8 @@ public class CustomerService {
         return customer;
     }
 
-    public Customer getCustomerByUserName(String userName) {
-        return customerRepository.findByUserName(userName).orElseThrow(() -> new RuntimeException("Нет такого пользователя"));
+    public Optional<Customer> getCustomerByUserName(String userName) {
+        return customerRepository.findByUserName(userName);
     }
 
     public List<Customer> getAll() {
@@ -81,12 +84,12 @@ public class CustomerService {
         return customer;
     }
 
-    public Customer renewSubscription(Customer customer) {
+    public Customer renewSubscription(Customer customer, int days) {
         OffsetDateTime prevNextPaymentDate = customer.getNextPaymentDate();
         if (prevNextPaymentDate.isAfter(OffsetDateTime.now())) {
-            customer.setNextPaymentDate(customer.getNextPaymentDate().plusDays(30));
+            customer.setNextPaymentDate(customer.getNextPaymentDate().plusDays(days));
         } else {
-            customer.setNextPaymentDate(OffsetDateTime.now().plusDays(30));
+            customer.setNextPaymentDate(OffsetDateTime.now().plusDays(days));
         }
         cliCommandsExecutor.restartWg();
         log.info(cliCommandsExecutor.statusWg().toString());
@@ -105,6 +108,30 @@ public class CustomerService {
             }
         } else {
             throw new RuntimeException("У пользователя сменился userName, боту не удалось его переименовать!");
+        }
+    }
+
+    public SendMessage tryActivateRef(Customer customer, String refUserName) {
+        if (customer.getRefUsername() != null) {
+            Optional<Customer> optionalCustomer = getCustomerByUserName(refUserName);
+            if (optionalCustomer.isEmpty()) {
+                return SendMessage.builder()
+                        .chatId(customer.getChatId())
+                        .text("Пользователь с именем " + refUserName + " не найден")
+                        .build();
+            }
+            Customer refCustomer = optionalCustomer.get();
+            renewSubscription(refCustomer, 14);
+            renewSubscription(customer, 14);
+            return SendMessage.builder()
+                    .chatId(customer.getChatId())
+                    .text(REF_SUCCESS_MSG)
+                    .build();
+        } else {
+            return SendMessage.builder()
+                    .chatId(customer.getChatId())
+                    .text("Вы уже использовали реферальную программу")
+                    .build();
         }
     }
 }
