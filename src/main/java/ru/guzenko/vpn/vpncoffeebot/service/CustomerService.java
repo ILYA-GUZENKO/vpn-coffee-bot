@@ -113,16 +113,18 @@ public class CustomerService {
 
     public SendMessage tryActivateRef(Customer customer, String refUserName) {
         if (customer.getRefUsername() == null) {
-            Optional<Customer> optionalCustomer = getCustomerByUserName(refUserName);
-            if (optionalCustomer.isEmpty()) {
+            Optional<Customer> optionalRefCustomer = getCustomerByUserName(refUserName);
+            if (optionalRefCustomer.isEmpty()) {
                 return SendMessage.builder()
                         .chatId(customer.getChatId())
                         .text("Пользователь с именем " + refUserName + " не найден")
                         .build();
             }
-            Customer refCustomer = optionalCustomer.get();
+            Customer refCustomer = optionalRefCustomer.get();
             renewSubscription(refCustomer, 14);
-            renewSubscription(customer, 14);
+            Customer renewedSubscription = renewSubscription(customer, 14);
+            renewedSubscription.setRefUsername(refUserName);
+            customerRepository.save(renewedSubscription);
             return SendMessage.builder()
                     .chatId(customer.getChatId())
                     .text(REF_SUCCESS_MSG)
