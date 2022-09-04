@@ -72,7 +72,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
     }
 
     private void answerMessage(Message message) {
-        Customer customer = customerService.getCustomer(message);
+        Customer customer = customerService.getCustomer(message.getFrom(), message.getChatId());
         String inputText = message.getText();
         String chatId = message.getChatId().toString();
 
@@ -129,7 +129,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
     private void processSubscriptionInfoCallbackQuery(CallbackQuery buttonQuery) {
         final String chatId = buttonQuery.getMessage().getChatId().toString();
         String data = buttonQuery.getData();
-        Customer customer = customerService.getCustomer(buttonQuery.getMessage());
+        Customer customer = customerService.getCustomer(buttonQuery.getFrom(), buttonQuery.getMessage().getChatId());
         if (customer.getNextPaymentDate() == null) {
             sendApiMethodAsync(new SendMessage(chatId, "У вас нет активной подписки \uD83D\uDE22"));
         } else if (data.equals(InlineButtonNameEnum.NEXT_PAYMENT_DATE.getButtonName())) {

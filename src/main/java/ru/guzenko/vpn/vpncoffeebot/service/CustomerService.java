@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 import ru.guzenko.vpn.vpncoffeebot.model.Customer;
 import ru.guzenko.vpn.vpncoffeebot.repository.CustomerRepository;
 
@@ -26,20 +26,20 @@ public class CustomerService {
 
     public static final String REF_SUCCESS_MSG = "Пробный период на 14 дней успешно активирован!";
 
-    public Customer getCustomer(Message message) {
+    public Customer getCustomer(User user, Long chatId) {
         Customer customer;
-        Optional<Customer> optionalCustomer = customerRepository.getCustomerByChatId(message.getChat().getId());
+        Optional<Customer> optionalCustomer = customerRepository.getCustomerByChatId(chatId);
         if (optionalCustomer.isEmpty()) {
-            var userName = message.getFrom().getUserName() == null ? "user" + message.getChat().getId() : message.getFrom().getUserName();
+            var userName = user.getUserName() == null ? "user" + chatId : user.getUserName();
             customer = customerRepository.save(Customer.builder()
-                    .chatId(message.getChat().getId())
+                    .chatId(chatId)
                     .userName(userName)
                     .regDate(OffsetDateTime.now())
                     .build());
         } else {
             customer = optionalCustomer.get();
-            if (!message.getFrom().getUserName().equals(customer.getUserName())) {
-                return renameCustomer(customer, message.getFrom().getUserName());
+            if (!user.getUserName().equals(customer.getUserName())) {
+                return renameCustomer(customer, user.getUserName());
             }
         }
         return customer;
@@ -112,7 +112,7 @@ public class CustomerService {
     }
 
     public SendMessage tryActivateRef(Customer customer, String refUserName) {
-        if (customer.getRefUsername() != null) {
+        if (customer.getRefUsername() == null) {
             Optional<Customer> optionalCustomer = getCustomerByUserName(refUserName);
             if (optionalCustomer.isEmpty()) {
                 return SendMessage.builder()
