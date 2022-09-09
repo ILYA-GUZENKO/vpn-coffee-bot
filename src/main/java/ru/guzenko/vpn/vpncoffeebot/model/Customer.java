@@ -31,6 +31,8 @@ public class Customer {
 
     private String userName;
 
+    //todo firstName lastName
+
     private String privateKey;
 
     private String publicKey;

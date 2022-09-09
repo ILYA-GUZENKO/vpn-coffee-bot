@@ -7,7 +7,7 @@ public enum ButtonNameEnum {
     BUY_SUB_BUTTON("Купить/продлить подписку"),
     HOW_IT_WORKS("Как это работает?"),
     GET_MY_SUBSCRIPTION("Посмотреть свою подписку"),
-    REF_PROGRAM("Реферальная программа"),
+    REF_PROGRAM("Рекомендуй другу - получи 14 дней бесплатно"),
     HELP_BUTTON("Помощь");
 
     private final String buttonName;

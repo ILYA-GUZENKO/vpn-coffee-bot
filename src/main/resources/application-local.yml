@@ -15,5 +15,5 @@ config:
     allowed-ips: 0.0.0.0/0
     persistent-keepalive: 20
   bot:
-    name: AffordableVPNbot
-    token: 5363074508:AAElrQIJQVntsfC9rm0SINp_GG57DVKWOiE
+    name: coffee_vpn_test_bot
+    token: 5761121762:AAEGLLGi8py8zpmVJnZiqfxJqpolIhARcFY

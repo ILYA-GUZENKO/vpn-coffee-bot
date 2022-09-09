@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 public enum InlineButtonNameEnum {
     NEXT_PAYMENT_DATE("/nextPaymentDate"),
     GET_CONFIG_FILE("/getConfigFile"),
+    GET_QR_CODE("/getQrCode"),
     NONE("nonel");
 
     private final String buttonName;
@@ -17,7 +18,7 @@ public enum InlineButtonNameEnum {
         this.buttonName = buttonName;
     }
 
-    public static Set<InlineButtonNameEnum> SUBSCRIPTION_INFO_SET = Set.of(NEXT_PAYMENT_DATE, GET_CONFIG_FILE);
+    public static Set<InlineButtonNameEnum> SUBSCRIPTION_INFO_SET = Set.of(NEXT_PAYMENT_DATE, GET_CONFIG_FILE, GET_QR_CODE);
     public static Set<InlineButtonNameEnum> HOW_IT_WORKS_CALLBACKS_SET = Set.of();
 
     public static InlineButtonNameEnum of(String data) {

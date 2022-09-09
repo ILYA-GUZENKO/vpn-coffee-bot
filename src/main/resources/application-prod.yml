@@ -4,6 +4,7 @@ spring:
     username: root
     password: root
 
+#не актуально
 config:
   cli:
     key-gen-command: wg genkey | tee /Users/ilyaguzenko/Desktop/bot-test-folder/{0}/{0}_privatekey | wg pubkey | tee /Users/ilyaguzenko/Desktop/bot-test-folder/{0}/{0}_publickey

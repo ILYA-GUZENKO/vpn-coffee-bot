@@ -19,6 +19,7 @@ public class InlineKeyboardMaker {
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(getButton("Когда закончится?", InlineButtonNameEnum.NEXT_PAYMENT_DATE.getButtonName()));
         rowList.add(getButton("Получить файл для доступа", InlineButtonNameEnum.GET_CONFIG_FILE.getButtonName()));
+        rowList.add(getButton("Получить QR code", InlineButtonNameEnum.GET_QR_CODE.getButtonName()));
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
@@ -26,10 +27,11 @@ public class InlineKeyboardMaker {
 
     public ReplyKeyboard getInlineButtonsForHowItWorks() {
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(getUrlButton("iOS", "https://apps.apple.com/us/app/wireguard/id1441195209?ls=1"));
-        rowList.add(getUrlButton("Android", "https://play.google.com/store/apps/details?id=com.wireguard.android&hl=ru&gl=US"));
-        rowList.add(getUrlButton("Mac", "https://apps.apple.com/us/app/wireguard/id1451685025?ls=1&mt=12"));
-        rowList.add(getUrlButton("Windows", "https://download.wireguard.com/windows-client/wireguard-installer.exe"));
+        rowList.add(getUrlButton("Инструкция", "https://telegra.ph/Instrukciya---kak-podklyuchit-coffeeVPN-09-08"));
+        //rowList.add(getUrlButton("iOS", "https://apps.apple.com/us/app/wireguard/id1441195209?ls=1"));
+        //rowList.add(getUrlButton("Android", "https://play.google.com/store/apps/details?id=com.wireguard.android&hl=ru&gl=US"));
+        //rowList.add(getUrlButton("Mac", "https://apps.apple.com/us/app/wireguard/id1451685025?ls=1&mt=12"));
+        //rowList.add(getUrlButton("Windows", "https://download.wireguard.com/windows-client/wireguard-installer.exe"));
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;

@@ -1,5 +1,10 @@
 package ru.guzenko.vpn.vpncoffeebot.bot;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +15,7 @@ import org.telegram.telegrambots.meta.api.methods.AnswerPreCheckoutQuery;
 import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -28,6 +34,8 @@ import ru.guzenko.vpn.vpncoffeebot.service.AdminService;
 import ru.guzenko.vpn.vpncoffeebot.service.CustomerService;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -80,12 +88,12 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
             SuccessfulPayment successfulPayment = message.getSuccessfulPayment();
             log.info(successfulPayment.toString());
             //todo successfulPayment.getProviderPaymentChargeId(); сохранять в базу, кажется надо вообще весь successfulPayment сохранять + чатИд в новую таблицу
-            sendApiMethodAsync(getBuySubscriptionMessage(customer));
+            sendApiMethodAsync(getBuySubscriptionMessage(customer, 30));
         } else if (inputText == null) {
             throw new IllegalArgumentException();
         } else if (inputText.equals("/start")) {
-            tryRegTrail(customer);
             sendApiMethodAsync(getStartMessage(chatId));
+            tryRegTrail(customer);
         } else if (inputText.startsWith("@")) {
             SendMessage sendMessage = customerService.tryActivateRef(customer, inputText.substring(1));
             sendApiMethodAsync(sendMessage);
@@ -106,7 +114,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
             sendApiMethodAsync(getHowItWorksMessage(chatId));
         } else if (inputText.equals(ButtonNameEnum.GET_MY_SUBSCRIPTION.getButtonName())) {
             sendApiMethodAsync(getMySubscriptionInfoMessage(chatId));
-        } else if (inputText.equals(ButtonNameEnum.HELP_BUTTON.getButtonName())) {
+        } else if (inputText.equals(ButtonNameEnum.HELP_BUTTON.getButtonName()) || (inputText.equals("/help"))) {
             SendMessage sendMessage = new SendMessage(chatId, BotMessageEnum.HELP_MESSAGE.getMessage());
             sendMessage.enableMarkdown(true);
             sendApiMethodAsync(sendMessage);
@@ -134,6 +142,18 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
             sendApiMethodAsync(new SendMessage(chatId, "У вас нет активной подписки \uD83D\uDE22"));
         } else if (data.equals(InlineButtonNameEnum.NEXT_PAYMENT_DATE.getButtonName())) {
             sendApiMethodAsync(new SendMessage(chatId, customer.getNextPaymentDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))));
+        } else if (data.equals(InlineButtonNameEnum.GET_QR_CODE.getButtonName())) {
+            try {
+                QRCodeWriter qrCodeWriter = new QRCodeWriter();
+                String dataString = new String(customer.getConfigFile());
+                BitMatrix bitMatrix = qrCodeWriter.encode(dataString, BarcodeFormat.QR_CODE, 400, 400);
+                ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+                MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+                byte[] pngData = pngOutputStream.toByteArray();
+                executeAsync(SendPhoto.builder().chatId(chatId).photo(new InputFile(new ByteArrayInputStream(pngData), "client_wg.png")).build());
+            } catch (WriterException | IOException e) {
+                e.printStackTrace();
+            }
         } else if (data.equals(InlineButtonNameEnum.GET_CONFIG_FILE.getButtonName())) {
             try {
                 execute(new SendDocument(chatId, new InputFile(new ByteArrayInputStream(customer.getConfigFile()), "client_wg.conf")));
@@ -149,7 +169,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
 
     }
 
-    private SendMessage getBuySubscriptionMessage(Customer customer) {
+    private SendMessage getBuySubscriptionMessage(Customer customer, Integer days) {
         OffsetDateTime nextPaymentDate = customer.getNextPaymentDate();
         SendMessage message = new SendMessage();
         message.setChatId(customer.getChatId().toString());
@@ -163,7 +183,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
                     message.setText("Не удалось создать подписку, попробуйте позже.");
                 }
             } else {
-                Customer updatedCustomer = customerService.renewSubscription(customer, 30);
+                Customer updatedCustomer = customerService.renewSubscription(customer, days);
                 if (updatedCustomer.getNextPaymentDate().isAfter(nextPaymentDate)) {
                     message.setText(BotMessageEnum.SUCCESS_RENEW_SUBSCRIBED.getMessage());
                 } else {
@@ -188,7 +208,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
                     .providerToken("381764678:TEST:41545")
                     .currency("RUB")
                     .startParameter("test")
-                    .prices(List.of(LabeledPrice.builder().label("Руб").amount(20000).build()))
+                    .prices(List.of(LabeledPrice.builder().label("Руб").amount(15000).build()))
                     .build()
             );
         } catch (TelegramApiException e) {
@@ -214,7 +234,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
     }
 
     private SendMessage getStartMessage(String chatId) {
-        SendMessage sendMessage = new SendMessage(chatId, BotMessageEnum.HELP_MESSAGE.getMessage());
+        SendMessage sendMessage = new SendMessage(chatId, BotMessageEnum.HELLO_MESSAGE.getMessage());
         sendMessage.enableMarkdown(true);
         sendMessage.setReplyMarkup(replyKeyboardMaker.getMainMenuKeyboard());
         return sendMessage;
@@ -222,8 +242,8 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
 
     private void tryRegTrail(Customer customer) {
         if (customer.getNextPaymentDate() == null) {
+            sendApiMethodAsync(getBuySubscriptionMessage(customer, 7));
             sendApiMethodAsync(SendMessage.builder().chatId(customer.getChatId()).text("Вы получили пробный доступ на 7 дней!").build());
-            sendApiMethodAsync(getBuySubscriptionMessage(customer));
         }
     }
 }
