@@ -175,7 +175,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
         message.setChatId(customer.getChatId().toString());
         message.enableMarkdown(true);
         try {
-            if (nextPaymentDate == null) {
+            if (nextPaymentDate == null && customer.getConfigFile() == null) {
                 Customer updatedCustomer = customerService.regSubscription(customer);
                 if (updatedCustomer.getConfigFile() != null) {
                     message.setText(BotMessageEnum.SUCCESS_SUBSCRIBED.getMessage());

@@ -93,6 +93,7 @@ public class ConfigFileService {
             System.out.println(join);
             Files.delete(path);
             Files.write(path, join.getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW, StandardOpenOption.SYNC);
+            log.info("peer " + userName + " удален из конфигурационного файла");
         } catch (IOException e) {
             log.error("Не удалось удалить пира " + userName + " !!!");
             e.printStackTrace();

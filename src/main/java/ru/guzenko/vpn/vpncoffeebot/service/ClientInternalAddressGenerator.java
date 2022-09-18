@@ -3,7 +3,6 @@ package ru.guzenko.vpn.vpncoffeebot.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.guzenko.vpn.vpncoffeebot.repository.CustomerRepository;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -11,8 +10,6 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 @Slf4j
 public class ClientInternalAddressGenerator {
-
-    private final CustomerRepository customerRepository;
 
     /**
      * 10.0.0.0–10.255.255.255

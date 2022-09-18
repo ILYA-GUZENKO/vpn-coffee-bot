@@ -77,6 +77,7 @@ public class ClientConfigFileCreator {
         } catch (IOException e) {
             log.error(e.getMessage());
             e.printStackTrace();
+            log.error("Не удалось создать файл для юзера {}", userName);
             throw new RuntimeException(e);
         }
     }

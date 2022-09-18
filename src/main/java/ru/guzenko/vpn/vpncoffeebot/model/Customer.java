@@ -10,9 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.time.OffsetDateTime;
 
 @Data
@@ -31,7 +29,9 @@ public class Customer {
 
     private String userName;
 
-    //todo firstName lastName
+    private String firstName;
+
+    private String lastName;
 
     private String privateKey;
 
@@ -46,7 +46,7 @@ public class Customer {
     private String refUsername;
 
     //@Lob
-    @Type(type="org.hibernate.type.BinaryType")
+    @Type(type = "org.hibernate.type.BinaryType")
     private byte[] configFile;
 
 }

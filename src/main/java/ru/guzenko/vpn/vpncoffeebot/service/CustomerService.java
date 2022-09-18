@@ -34,12 +34,17 @@ public class CustomerService {
             customer = customerRepository.save(Customer.builder()
                     .chatId(chatId)
                     .userName(userName)
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
                     .regDate(OffsetDateTime.now())
                     .build());
         } else {
             customer = optionalCustomer.get();
             if (!user.getUserName().equals(customer.getUserName())) {
-                return renameCustomer(customer, user.getUserName());
+                customer = updateCustomerUsername(customer, user.getUserName());
+            }
+            if (!user.getFirstName().equals(customer.getFirstName()) || !user.getLastName().equals(customer.getLastName())) {
+                customer = updateCustomerFirstNameAndLastName(customer, user.getFirstName(), user.getLastName());
             }
         }
         return customer;
@@ -86,17 +91,21 @@ public class CustomerService {
 
     public Customer renewSubscription(Customer customer, int days) {
         OffsetDateTime prevNextPaymentDate = customer.getNextPaymentDate();
-        if (prevNextPaymentDate.isAfter(OffsetDateTime.now())) {
+        if (prevNextPaymentDate == null) {
+            customer.setNextPaymentDate(OffsetDateTime.now().plusDays(days));
+            configFileService.addPeer(customer.getUserName(), customer.getPublicKey(), customer.getInternalIpAddress());
+            cliCommandsExecutor.restartWg();
+            log.info(cliCommandsExecutor.statusWg().toString());
+            return customerRepository.save(customer);
+        } else if (prevNextPaymentDate.isAfter(OffsetDateTime.now())) {
             customer.setNextPaymentDate(customer.getNextPaymentDate().plusDays(days));
         } else {
             customer.setNextPaymentDate(OffsetDateTime.now().plusDays(days));
         }
-        cliCommandsExecutor.restartWg();
-        log.info(cliCommandsExecutor.statusWg().toString());
         return customerRepository.save(customer);
     }
 
-    private Customer renameCustomer(Customer customer, String newUserName) {
+    private Customer updateCustomerUsername(Customer customer, String newUserName) {
         boolean result = cliCommandsExecutor.renameUserDirAndFiles(customer.getUserName(), newUserName);
         if (result) {
             boolean updatePeerName = configFileService.updatePeerName(customer.getUserName(), newUserName, customer.getPublicKey(), customer.getInternalIpAddress());
@@ -109,6 +118,12 @@ public class CustomerService {
         } else {
             throw new RuntimeException("У пользователя сменился userName, боту не удалось его переименовать!");
         }
+    }
+
+    private Customer updateCustomerFirstNameAndLastName(Customer customer, String firstName, String lastName) {
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+        return customerRepository.save(customer);
     }
 
     public SendMessage tryActivateRef(Customer customer, String refUserName) {
