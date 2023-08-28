@@ -28,7 +28,7 @@ public class CustomerScheduler {
     //этот должен срабатывать первым
     //todo cron
     @Async
-    @Scheduled(fixedDelay = 100000, initialDelay = 20000)
+    //@Scheduled(fixedDelay = 100000, initialDelay = 20000)
     public void deleteExpiredSubscriptions() {
         log.info("deleteExpiredSubscriptions job started");
 
@@ -65,7 +65,7 @@ public class CustomerScheduler {
     //этот должен срабатывать  вторым
     //todo cron
     @Async
-    @Scheduled(fixedDelay = 100000, initialDelay = 60000)
+    //@Scheduled(fixedDelay = 100000, initialDelay = 60000)
     public void notifyOneDayLeft() {
         log.info("notifyOneDayLeft job started");
 

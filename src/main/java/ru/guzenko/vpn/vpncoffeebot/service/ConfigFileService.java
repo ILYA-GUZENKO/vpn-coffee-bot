@@ -21,6 +21,15 @@ import static ru.guzenko.vpn.vpncoffeebot.constant.Constants.NEW_LINE;
 @Slf4j
 public class ConfigFileService {
 
+    /*
+[Interface]
+PrivateKey = oMG3UuNxd/T0CoxPFF9m/64pkvLxGlPjhaAzX/856Ws=
+Address = 10.0.0.1/24
+ListenPort = 51830
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+     */
+
     @Value("${config.cli.work-dir}")
     private String workDir;
 

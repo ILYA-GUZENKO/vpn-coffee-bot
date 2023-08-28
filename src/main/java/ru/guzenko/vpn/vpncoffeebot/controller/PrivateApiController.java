@@ -51,6 +51,17 @@ public class PrivateApiController {
         return customerService.renewSubscription(customer, 30);
     }
 
+    @GetMapping("/renewAllSubs")
+    public void renewAllSubs() {
+        customerService.getAll().forEach(user -> {
+            if (user.getNextPaymentDate() == null) {
+                vpnCoffeeBot.getBuySubscriptionMessage(user, 900);
+            } else {
+                customerService.renewSubscription(user, 900);
+            }
+        });
+    }
+
     @GetMapping("/startWg")
     public ResponseEntity<Void> startWg() {
         cliCommandsExecutor.startWg();

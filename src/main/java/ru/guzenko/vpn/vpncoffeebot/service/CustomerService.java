@@ -40,10 +40,10 @@ public class CustomerService {
                     .build());
         } else {
             customer = optionalCustomer.get();
-            if (!user.getUserName().equals(customer.getUserName())) {
+            if (user.getUserName()!=null && !user.getUserName().equals(customer.getUserName())) {
                 customer = updateCustomerUsername(customer, user.getUserName());
             }
-            if (!user.getFirstName().equals(customer.getFirstName()) || !user.getLastName().equals(customer.getLastName())) {
+            if ((user.getFirstName() != null && !user.getFirstName().equals(customer.getFirstName())) || (user.getLastName()!= null && !user.getLastName().equals(customer.getLastName()))) {
                 customer = updateCustomerFirstNameAndLastName(customer, user.getFirstName(), user.getLastName());
             }
         }
@@ -80,7 +80,7 @@ public class CustomerService {
                 customer.setPrivateKey(keyPair.getSecond());
                 customer.setInternalIpAddress(internalIp);
                 customer.setConfigFile(fileBytes);
-                customer.setNextPaymentDate(OffsetDateTime.now().plusDays(30));
+                customer.setNextPaymentDate(OffsetDateTime.now().plusDays(900));
                 cliCommandsExecutor.restartWg();
                 log.info(cliCommandsExecutor.statusWg().toString());
                 return customerRepository.save(customer);

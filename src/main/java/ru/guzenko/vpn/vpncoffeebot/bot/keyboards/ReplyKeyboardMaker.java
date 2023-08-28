@@ -17,20 +17,20 @@ public class ReplyKeyboardMaker {
 
     public ReplyKeyboardMarkup getMainMenuKeyboard() {
         KeyboardRow row1 = new KeyboardRow();
-        row1.add(new KeyboardButton(ButtonNameEnum.BUY_SUB_BUTTON.getButtonName()));
+        //row1.add(new KeyboardButton(ButtonNameEnum.BUY_SUB_BUTTON.getButtonName()));
         row1.add(new KeyboardButton(ButtonNameEnum.HOW_IT_WORKS.getButtonName()));
 
         KeyboardRow row2 = new KeyboardRow();
         row2.add(new KeyboardButton(ButtonNameEnum.GET_MY_SUBSCRIPTION.getButtonName()));
         row2.add(new KeyboardButton(ButtonNameEnum.HELP_BUTTON.getButtonName()));
 
-        KeyboardRow row3 = new KeyboardRow();
-        row3.add(new KeyboardButton(ButtonNameEnum.REF_PROGRAM.getButtonName()));
+       //KeyboardRow row3 = new KeyboardRow();
+        //row3.add(new KeyboardButton(ButtonNameEnum.REF_PROGRAM.getButtonName()));
 
         List<KeyboardRow> keyboard = new ArrayList<>();
         keyboard.add(row1);
         keyboard.add(row2);
-        keyboard.add(row3);
+        //keyboard.add(row3);
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setKeyboard(keyboard);

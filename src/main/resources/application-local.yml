@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/vpnbot
+    url: jdbc:postgresql://103.136.41.156:5432/vpnbot
     username: root
     password: root
 

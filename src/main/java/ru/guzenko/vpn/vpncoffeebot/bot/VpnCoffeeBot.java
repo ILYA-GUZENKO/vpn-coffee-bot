@@ -58,6 +58,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
     private final InlineKeyboardMaker inlineKeyboardMaker;
     private final AdminService adminService;
 
+    //todo сделать бесплатным
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasPreCheckoutQuery()) {
@@ -79,37 +80,17 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
         }
     }
 
+    //как было, с прикрученной тестовой оплатой
     private void answerMessage(Message message) {
         Customer customer = customerService.getCustomer(message.getFrom(), message.getChatId());
         String inputText = message.getText();
         String chatId = message.getChatId().toString();
 
-        if (message.hasSuccessfulPayment()) {
-            SuccessfulPayment successfulPayment = message.getSuccessfulPayment();
-            log.info(successfulPayment.toString());
-            //todo successfulPayment.getProviderPaymentChargeId(); сохранять в базу, кажется надо вообще весь successfulPayment сохранять + чатИд в новую таблицу
-            sendApiMethodAsync(getBuySubscriptionMessage(customer, 30));
-        } else if (inputText == null) {
-            throw new IllegalArgumentException();
+        if (inputText == null) {
+            sendApiMethodAsync(new SendMessage(chatId, BotMessageEnum.NON_COMMAND_MESSAGE.getMessage()));
         } else if (inputText.equals("/start")) {
             sendApiMethodAsync(getStartMessage(chatId));
             tryRegTrail(customer);
-        } else if (inputText.startsWith("@")) {
-            SendMessage sendMessage = customerService.tryActivateRef(customer, inputText.substring(1));
-            sendApiMethodAsync(sendMessage);
-            if (sendMessage.getText().equals(CustomerService.REF_SUCCESS_MSG)) {
-                Customer refCustomer = customerService.getCustomerByUserName(inputText.substring(1)).get();
-                sendApiMethodAsync(SendMessage.builder()
-                        .chatId(refCustomer.getChatId())
-                        .text("Подписка продлена на 14 дней за рекомендацию пользователю " + customer.getUserName())
-                        .build());
-            }
-        } else if (inputText.equals(ButtonNameEnum.REF_PROGRAM.getButtonName())) {
-            SendMessage sendMessage = new SendMessage(chatId, BotMessageEnum.REF_PROGRAM.getMessage());
-            sendMessage.enableMarkdown(true);
-            sendApiMethodAsync(sendMessage);
-        } else if (inputText.equals(ButtonNameEnum.BUY_SUB_BUTTON.getButtonName())) {
-            sendInvoice(chatId);
         } else if (inputText.equals(ButtonNameEnum.HOW_IT_WORKS.getButtonName())) {
             sendApiMethodAsync(getHowItWorksMessage(chatId));
         } else if (inputText.equals(ButtonNameEnum.GET_MY_SUBSCRIPTION.getButtonName())) {
@@ -169,7 +150,7 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
 
     }
 
-    private SendMessage getBuySubscriptionMessage(Customer customer, Integer days) {
+    public SendMessage getBuySubscriptionMessage(Customer customer, Integer days) {
         OffsetDateTime nextPaymentDate = customer.getNextPaymentDate();
         SendMessage message = new SendMessage();
         message.setChatId(customer.getChatId().toString());
@@ -242,8 +223,58 @@ public class VpnCoffeeBot extends TelegramLongPollingBot {
 
     private void tryRegTrail(Customer customer) {
         if (customer.getNextPaymentDate() == null) {
-            sendApiMethodAsync(getBuySubscriptionMessage(customer, 7));
-            sendApiMethodAsync(SendMessage.builder().chatId(customer.getChatId()).text("Вы получили пробный доступ на 7 дней!").build());
+            sendApiMethodAsync(getBuySubscriptionMessage(customer, 900));
+            //sendApiMethodAsync(getBuySubscriptionMessage(customer, 7));
+            //sendApiMethodAsync(SendMessage.builder().chatId(customer.getChatId()).text("Вы получили пробный доступ на 7 дней!").build());
+            sendApiMethodAsync(SendMessage.builder().chatId(customer.getChatId()).text("Вы получили пробный доступ на 900 дней!").build());
+        }
+    }
+
+
+    //как было, с прикрученной тестовой оплатой
+    //взять за основу платной версии
+    @Deprecated
+    private void answerMessageOld(Message message) {
+        Customer customer = customerService.getCustomer(message.getFrom(), message.getChatId());
+        String inputText = message.getText();
+        String chatId = message.getChatId().toString();
+
+        if (message.hasSuccessfulPayment()) {
+            SuccessfulPayment successfulPayment = message.getSuccessfulPayment();
+            log.info(successfulPayment.toString());
+            //todo successfulPayment.getProviderPaymentChargeId(); сохранять в базу, кажется надо вообще весь successfulPayment сохранять + чатИд в новую таблицу
+            sendApiMethodAsync(getBuySubscriptionMessage(customer, 900));
+        } else if (inputText == null) {
+            throw new IllegalArgumentException();
+        } else if (inputText.equals("/start")) {
+            sendApiMethodAsync(getStartMessage(chatId));
+            tryRegTrail(customer);
+        } else if (inputText.startsWith("@")) {
+            SendMessage sendMessage = customerService.tryActivateRef(customer, inputText.substring(1));
+            sendApiMethodAsync(sendMessage);
+            if (sendMessage.getText().equals(CustomerService.REF_SUCCESS_MSG)) {
+                Customer refCustomer = customerService.getCustomerByUserName(inputText.substring(1)).get();
+                sendApiMethodAsync(SendMessage.builder()
+                        .chatId(refCustomer.getChatId())
+                        .text("Подписка продлена на 14 дней за рекомендацию пользователю " + customer.getUserName())
+                        .build());
+            }
+        } else if (inputText.equals(ButtonNameEnum.REF_PROGRAM.getButtonName())) {
+            SendMessage sendMessage = new SendMessage(chatId, BotMessageEnum.REF_PROGRAM.getMessage());
+            sendMessage.enableMarkdown(true);
+            sendApiMethodAsync(sendMessage);
+        } else if (inputText.equals(ButtonNameEnum.BUY_SUB_BUTTON.getButtonName())) {
+            sendInvoice(chatId);
+        } else if (inputText.equals(ButtonNameEnum.HOW_IT_WORKS.getButtonName())) {
+            sendApiMethodAsync(getHowItWorksMessage(chatId));
+        } else if (inputText.equals(ButtonNameEnum.GET_MY_SUBSCRIPTION.getButtonName())) {
+            sendApiMethodAsync(getMySubscriptionInfoMessage(chatId));
+        } else if (inputText.equals(ButtonNameEnum.HELP_BUTTON.getButtonName()) || (inputText.equals("/help"))) {
+            SendMessage sendMessage = new SendMessage(chatId, BotMessageEnum.HELP_MESSAGE.getMessage());
+            sendMessage.enableMarkdown(true);
+            sendApiMethodAsync(sendMessage);
+        } else {
+            sendApiMethodAsync(new SendMessage(chatId, BotMessageEnum.NON_COMMAND_MESSAGE.getMessage()));
         }
     }
 }
